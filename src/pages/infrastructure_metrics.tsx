@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { AppBar, Toolbar, Typography, Box, Container, Paper, Grid, Select, MenuItem, ToggleButtonGroup, ToggleButton, List, ListItem, ListItemText } from '@mui/material';
 import { Link } from 'react-router-dom';
 import Table from '@mui/material/Table';
@@ -63,7 +65,7 @@ export default function InfrastructureMetrics() {
         console.error('Error loading T5 data:', error);
       }
     };
-  
+
     fetchT5Data();
   }, []);
 
@@ -139,29 +141,29 @@ export default function InfrastructureMetrics() {
         const parsedData = rows
           .filter(row => row.trim())
           .map((row) => {
-          //   const [timestamp, predicted, lower, upper, actual] = row.split(',');
-          //   return {
-          //     timestamp: new Date(timestamp),
-          //     predicted: parseFloat(predicted),
-          //     lower: parseFloat(lower),
-          //     upper: parseFloat(upper),
-          //     actual: actual ? parseFloat(actual) : null // Handle empty actual values
-          //   };
-          // })
-          const [timestamp, predicted, lower, upper, actual] = row.split(',');
-          const date = new Date(timestamp);
-          
-          // Only include predictions from Jan 7th 1am onwards
-          const isPredictionTime = date >= new Date('2024-01-07 00:00:00');
-          
-          return {
-            timestamp: date,
-            predicted: isPredictionTime ? parseFloat(predicted) : null,
-            lower: isPredictionTime ? parseFloat(lower) : null,
-            upper: isPredictionTime ? parseFloat(upper) : null,
-            actual: actual ? parseFloat(actual) : null
-          };
-        })
+            //   const [timestamp, predicted, lower, upper, actual] = row.split(',');
+            //   return {
+            //     timestamp: new Date(timestamp),
+            //     predicted: parseFloat(predicted),
+            //     lower: parseFloat(lower),
+            //     upper: parseFloat(upper),
+            //     actual: actual ? parseFloat(actual) : null // Handle empty actual values
+            //   };
+            // })
+            const [timestamp, predicted, lower, upper, actual] = row.split(',');
+            const date = new Date(timestamp);
+
+            // Only include predictions from Jan 7th 1am onwards
+            const isPredictionTime = date >= new Date('2024-01-07 00:00:00');
+
+            return {
+              timestamp: date,
+              predicted: isPredictionTime ? parseFloat(predicted) : null,
+              lower: isPredictionTime ? parseFloat(lower) : null,
+              upper: isPredictionTime ? parseFloat(upper) : null,
+              actual: actual ? parseFloat(actual) : null
+            };
+          })
           // .filter(d => !isNaN(d.predicted));
           .filter(d => {
             // Filter for hourly data points (minutes and seconds are 0)
@@ -184,7 +186,7 @@ export default function InfrastructureMetrics() {
           .map((row) => {
             // Remove quotes and split by comma
             const values = row.replace(/"/g, '').split(',');
-            
+
             return {
               timestamp: new Date(values[0]),
               historical: values[1] ? parseFloat(values[1]) : null,
@@ -258,35 +260,35 @@ export default function InfrastructureMetrics() {
         });
       });
   }, []);
-    
+
 
   useEffect(() => {
-      fetch('/classified_lambda_metrics_with_peak_hours_status_new (1).csv')
-        .then(response => response.text())
-        .then(csv => {
-          const rows = csv.split('\n').slice(1);
-          const parsed = rows
-            .filter(row => row.trim())
-            .map(row => {
-              const [
-                startTime, invocations, errors, throttles, 
-                errorRate, hour, minute, errorRateScaled, 
-                invocationsScaled, anomaly, peakHourStatus
-              ] = row.split(',');
-              return {
-                startTime: new Date(startTime),
-                invocations: parseFloat(invocations),
-                errors: parseFloat(errors),
-                errorRate: parseFloat(errorRate),
-                anomaly: parseInt(anomaly),
-                peakHourStatus: peakHourStatus.trim(),
-                hour: parseInt(hour)
-              };
-            });
-          setClassifiedData(parsed);
-        });
+    fetch('/classified_lambda_metrics_with_peak_hours_status_new (1).csv')
+      .then(response => response.text())
+      .then(csv => {
+        const rows = csv.split('\n').slice(1);
+        const parsed = rows
+          .filter(row => row.trim())
+          .map(row => {
+            const [
+              startTime, invocations, errors, throttles,
+              errorRate, hour, minute, errorRateScaled,
+              invocationsScaled, anomaly, peakHourStatus
+            ] = row.split(',');
+            return {
+              startTime: new Date(startTime),
+              invocations: parseFloat(invocations),
+              errors: parseFloat(errors),
+              errorRate: parseFloat(errorRate),
+              anomaly: parseInt(anomaly),
+              peakHourStatus: peakHourStatus.trim(),
+              hour: parseInt(hour)
+            };
+          });
+        setClassifiedData(parsed);
+      });
   }, []);
-  
+
   // Sort data by hour for the second graph
   const hourlyData = [...Array(24)].map((_, hour) => {
     const hourData = classifiedData.filter(d => d.hour === hour);
@@ -304,23 +306,23 @@ export default function InfrastructureMetrics() {
       try {
         const response = await fetch('https://iufi14jew0.execute-api.us-east-1.amazonaws.com/default/IG_API_insights');
         const data = await response.json();
-        
+
         // Extract JSON from markdown code block
         const jsonString = data.insights
           .replace('```json\n', '')
           .replace('\n```', '')
           .trim();
-        
+
         const parsedInsights = JSON.parse(jsonString);
         setApiGatewayInsights(parsedInsights);
       } catch (error) {
         console.error('Error fetching API Gateway insights:', error);
       }
     };
-  
+
     fetchApiGatewayInsights();
   }, []);
-  
+
   useEffect(() => {
     const fetchEc2Insights = async () => {
       try {
@@ -329,7 +331,7 @@ export default function InfrastructureMetrics() {
         const insightText = data.insights.completion.trim()
         // Log the completion string for debugging
         console.log('Completion String:', insightText);
-  
+
         // Extract the insights text directly from the completion string
         //const insightsText = data.insights.completion.trim(); // Remove any extra whitespace
         setEc2Insights(insightText); // Set the insights text to state
@@ -337,7 +339,7 @@ export default function InfrastructureMetrics() {
         console.error('Error fetching EC2 insights:', error);
       }
     };
-  
+
     fetchEc2Insights();
   }, []);
   useEffect(() => {
@@ -349,7 +351,7 @@ export default function InfrastructureMetrics() {
         const response = await fetch('https://fxza7y0toi.execute-api.us-east-1.amazonaws.com/default/IG_lambda_insights');
         const data = await response.json();
         console.log('Response data:', data);
-        
+
         // Direct access to insights property
         if (data.insights) {
           console.log('Setting insights:', data.insights);
@@ -364,416 +366,585 @@ export default function InfrastructureMetrics() {
 
     fetchInsights();
   }, []);
-  
+
   return (
+
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+        <Typography
+          variant="h6"
+          sx={{
+            mb: 0,              // Remove bottom margin
+            minWidth: 'fit-content' // Prevent text wrapping
+          }}
+        >
+          Metric Source:
+        </Typography>
+        <Select
+          fullWidth
+          value={ec2Instance}
+          onChange={(e) => setEc2Instance(e.target.value)}
+          sx={{ mb: 2 }}
+        >
+          <MenuItem value="TSAS-StreamlitHost">TSAS-StreamlitHost</MenuItem>
+          <MenuItem value="kidonteam5ec2">team5</MenuItem>
+        </Select>
+      </Box>
+
+      <Typography variant="h6" gutterBottom>Source Details:</Typography>
+      <Grid container spacing={3} sx={{ mb: 3, mx: 0, width: '100%' }}>
+        {/* Instance Details Column */}
+        <Grid item xs={12} md={4} sx={{pl: {xs: 0, md: 2}}}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 2,
+              height: '100%',
+              bgcolor: '#f5f5f5',
+              '&:hover': { boxShadow: 3 }
+            }}
+          >
+            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold', color: '#2196f3' }}>
+              Instance Details
+            </Typography>
+            <List dense>
+              <ListItem>
+                <ListItemText
+                  primary="Instance Type"
+                  secondary="t3.2xlarge"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Instance ID"
+                  secondary="i-0001324e481555bb7"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="vCPUs"
+                  secondary="8"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Virtualization Type"
+                  secondary="hvm"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+            </List>
+          </Paper>
+        </Grid>
+
+        {/* Network Details Column */}
+        <Grid item xs={12} md={4}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 2,
+              height: '100%',
+              bgcolor: '#f5f5f5',
+              '&:hover': { boxShadow: 3 }
+            }}
+          >
+            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold', color: '#2196f3' }}>
+              Network Details
+            </Typography>
+            <List dense>
+              <ListItem>
+                <ListItemText
+                  primary="Region"
+                  secondary="usa-east-1"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="VPC"
+                  secondary="vpc-xxxxx"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Subnet"
+                  secondary="subnet-xxxxx"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Security Group"
+                  secondary="sg-xxxxx"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+            </List>
+          </Paper>
+        </Grid>
+
+        {/* Other Details Column */}
+        <Grid item xs={12} md={4}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 2,
+              height: '100%',
+              bgcolor: '#f5f5f5',
+              '&:hover': { boxShadow: 3 }
+            }}
+          >
+            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold', color: '#2196f3' }}>
+              Other Details
+            </Typography>
+            <List dense>
+              <ListItem>
+                <ListItemText
+                  primary="AMI ID"
+                  secondary="ami-xxxxx"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Launch Time"
+                  secondary="2023-12-01"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Tags"
+                  secondary="TSAT"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Status"
+                  secondary="Running"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                />
+              </ListItem>
+            </List>
+          </Paper>
+        </Grid>
+      </Grid>
+
+
+
+      {/* Original Code */}
       <Box sx={{ flexGrow: 1, p: 2 }}>
-          <Paper sx={{ p: 2, height: '100%', overflow: 'auto', bgcolor: '#f5f9ff' }}>
-            <Select
-              fullWidth
-              value={ec2Instance}
-              onChange={(e) => setEc2Instance(e.target.value)}
-              sx={{ mb: 2 }}
-            >
-              <MenuItem value="TSAS-StreamlitHost">TSAS-StreamlitHost</MenuItem>
-              <MenuItem value="kidonteam5ec2">team5</MenuItem>
-            </Select>
-            
-            <Paper elevation={2} sx={{ p: 2, mb: 2, bgcolor: '#f5f5f5' }}>
-              {ec2Instance === 'TSAS-StreamlitHost' ? (
-                <>
-                  <Typography variant="h6" gutterBottom>
-                    TSAS-StreamlitHost Overview
-                  </Typography>
-                  <Typography variant="body1" paragraph>
-                    {/* Add your TSAS description here */}
-                    Description about TSAS instance and its purpose...
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    <strong>Instance Type:</strong> t3.2xlarge
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>Region:</strong> usa-east-1
-                  </Typography>
-                  Instance ID: i-0001324e481555bb7
-                  No of vCPUs: 8
-                  Virtualization type: hvm
-                  TSAT
-                </>
-              ) : (
-                <>
-                  <Typography variant="h6" gutterBottom>
-                    Team 5 EC2 Instance Overview
-                  </Typography>
-                  <Typography variant="body1" paragraph>
-                    {/* Add your Team 5 description here */}
-                    Description about Team 5 instance and its purpose...
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    <strong>Instance Type:</strong> t2.xlarge
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>Region:</strong> ap-south-1
-                  </Typography>
-                  Instance ID: i-08a4986ef5bc41d72
-                  No of vCPUs: 8
-                  Virtualization type: hvm
-                </>
-              )}
-            </Paper>
+        <Paper sx={{ p: 2, height: '100%', overflow: 'auto', bgcolor: '#f5f9ff' }}>
+          <Select
+            fullWidth
+            value={ec2Instance}
+            onChange={(e) => setEc2Instance(e.target.value)}
+            sx={{ mb: 2 }}
+          >
+            <MenuItem value="TSAS-StreamlitHost">TSAS-StreamlitHost</MenuItem>
+            <MenuItem value="kidonteam5ec2">team5</MenuItem>
+          </Select>
 
-            <ToggleButtonGroup
-              value={ec2Models}
-              onChange={(e, newModels) => setEc2Models(newModels)}
-              sx={{ mb: 2 }}
-            >
-              <ToggleButton value="LSTM">LSTM</ToggleButton>
-              <ToggleButton value="ARIMA">ARIMA</ToggleButton>
-              <ToggleButton value="Other">Other</ToggleButton>
-            </ToggleButtonGroup>
+          <Paper elevation={2} sx={{ p: 2, mb: 2, bgcolor: '#f5f5f5' }}>
+            {ec2Instance === 'TSAS-StreamlitHost' ? (
+              <>
+                <Typography variant="h6" gutterBottom>
+                  TSAS-StreamlitHost Overview
+                </Typography>
+                <Typography variant="body1" paragraph>
+                  {/* Add your TSAS description here */}
+                  Description about TSAS instance and its purpose...
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  <strong>Instance Type:</strong> t3.2xlarge
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Region:</strong> usa-east-1
+                </Typography>
+                Instance ID: i-0001324e481555bb7
+                No of vCPUs: 8
+                Virtualization type: hvm
+                TSAT
+              </>
+            ) : (
+              <>
+                <Typography variant="h6" gutterBottom>
+                  Team 5 EC2 Instance Overview
+                </Typography>
+                <Typography variant="body1" paragraph>
+                  {/* Add your Team 5 description here */}
+                  Description about Team 5 instance and its purpose...
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  <strong>Instance Type:</strong> t2.xlarge
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Region:</strong> ap-south-1
+                </Typography>
+                Instance ID: i-08a4986ef5bc41d72
+                No of vCPUs: 8
+                Virtualization type: hvm
+              </>
+            )}
+          </Paper>
 
-            <Grid container direction="column" spacing={2}>
-              <Grid item>
-                <Typography variant="subtitle1">CPU Utilization</Typography>
-                <Grid container spacing={2}>
-                  
-                  {ec2Instance === 'TSAS-StreamlitHost' && ec2Models.includes('LSTM') && (
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle1">LSTM Forecasting - Nov-21 - Dec-07 </Typography>
-                      
-                      <Paper elevation={2} sx={{ p: 1, bgcolor: '#ffffff' }}>
-                        <Plot
-                          data={[
-                            {
-                              x: data.map(d => d.timestamp),
-                              y: data.map(d => d.cpu),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'CPU Utilization',
-                              line: { color: '#8884d8' }
-                            },
-                            {
-                              x: data.map(d => d.timestamp),
-                              y: data.map(d => d.predicted),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'Predicted CPU Utilization',
-                              line: { color: '#82ca9d' }
-                            }
-                          ]}
-                          layout={{
-                            autosize: true,
-                            height: 400,
-                            margin: { l: 50, r: 30, t: 20, b: 50 },
-                            showlegend: true,
-                            xaxis: {
-                              title: 'Time',
-                              tickangle: -45
-                            },
-                            yaxis: {
-                              title: 'CPU Utilization (%)',
-                              titlefont: { color: '#1a1a1a' },
-                              tickfont: { color: '#1a1a1a' },
-                              range: [0, Math.max(
-                                ...data.map(d => d.cpu),
-                                ...data.map(d => d.predicted)
-                              ) * 1.1]
-                            },
-                            legend: {
-                              x: 0.5,
-                              y: 1.2,
-                              orientation: 'h',
-                              xanchor: 'center'
-                            }
-                          }}
-                          config={{
-                            responsive: true,
-                            displayModeBar: false
-                          }}
-                          style={{ width: '100%', height: '100%' }}
-                        />
-                      </Paper>
-                    </Grid>
-                  )}
+          <ToggleButtonGroup
+            value={ec2Models}
+            onChange={(e, newModels) => setEc2Models(newModels)}
+            sx={{ mb: 2 }}
+          >
+            <ToggleButton value="LSTM">LSTM</ToggleButton>
+            <ToggleButton value="ARIMA">ARIMA</ToggleButton>
+            <ToggleButton value="Other">Other</ToggleButton>
+          </ToggleButtonGroup>
 
-                  {ec2Instance === 'TSAS-StreamlitHost' && ec2Models.includes('LSTM') && (
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle1">LSTM Forecasting - Nov-21 - Dec-07 - Actual vs Predicted</Typography>
-                      <Paper elevation={2} sx={{ p: 1, bgcolor: '#ffffff' }}>
-                        <Plot
-                          data={[
-                            {
-                              x: lstmValidationData.map(d => d.timestamp),
-                              y: lstmValidationData.map(d => d.cpu),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'CPU Utilization',
-                              line: { color: '#C6C5D8' }
-                            },
-                            {
-                              x: lstmValidationData.map(d => d.timestamp),
-                              y: lstmValidationData.map(d => d.predicted),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'Predicted CPU Utilization',
-                              line: { color: '#D16BA2' }
-                            }
-                          ]}
-                          layout={{
-                            autosize: true,
-                            height: 400,
-                            margin: { l: 50, r: 50, t: 30, b: 30 },
-                            xaxis: {
-                              title: 'Time',
-                              showgrid: true,
-                              gridcolor: '#e1e1e1'
-                            },
-                            yaxis: {
-                              title: 'CPU Utilization',
-                              showgrid: true,
-                              gridcolor: '#e1e1e1'
-                            },
-                            paper_bgcolor: 'white',
-                            plot_bgcolor: 'white',
-                            showlegend: true,
-                            legend: {
-                              x: 0,
-                              y: 1
-                            }
-                          }}
-                          config={{
-                            responsive: true,
-                            displayModeBar: false
-                          }}
-                          style={{ width: '100%' }}
-                        />
-                      </Paper>
-                    </Grid>
-                  )}
+          <Grid container direction="column" spacing={2}>
+            <Grid item>
+              <Typography variant="subtitle1">CPU Utilization</Typography>
+              <Grid container spacing={2}>
 
-                  {ec2Instance === 'TSAS-StreamlitHost' && ec2Models.includes('ARIMA') && (
-                    <Grid item xs={6}>
-                      <Typography variant="subtitle1">QuickSight ARIMA Forecasting - Dec-01 - Dec-07</Typography>
-                      <Paper elevation={2} sx={{ p: 1, bgcolor: '#ffffff' }}>
-                        <Plot
-                          data={[
-                            {
-                              x: historicalData.map(d => d.timestamp),
-                              y: historicalData.map(d => d.historical),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'Historical Forecast',
-                              line: { color: '#8884d8' }
-                            },
-                            {
-                              x: futureData.map(d => d.timestamp),
-                              y: futureData.map(d => d.forecast),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'Future Forecast',
-                              line: { color: '#ff7f0e' }
-                            },
-                            {
-                              x: futureData.map(d => d.timestamp),
-                              y: futureData.map(d => d.upperBound),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'Confidence Interval',
-                              line: { width: 0 },
-                              showlegend: false
-                            },
-                            {
-                              x: futureData.map(d => d.timestamp),
-                              y: futureData.map(d => d.lowerBound),
-                              type: 'scatter',
-                              mode: 'lines',
-                              fill: 'tonexty',
-                              fillcolor: 'rgba(255, 127, 14, 0.2)',
-                              line: { width: 0 },
-                              showlegend: false
-                            }
-                          ]}
-                          layout={{
-                            autosize: true,
-                            height: 400,
-                            margin: { l: 50, r: 30, t: 20, b: 50 },
-                            showlegend: true,
-                            xaxis: {
-                              title: 'Time',
-                              tickangle: -45,
-                              range: [
-                                new Date('2024-10-14'),
-                                new Date('2024-12-07')
-                              ]
-                            },
-                            yaxis: {
-                              title: 'CPU Utilization (%)',
-                              titlefont: { color: '#1a1a1a' },
-                              tickfont: { color: '#1a1a1a' }
-                            },
-                            legend: {
-                              x: 0.5,
-                              y: 1.2,
-                              orientation: 'h',
-                              xanchor: 'center'
-                            }
-                          }}
-                          config={{
-                            responsive: true,
-                            displayModeBar: false
-                          }}
-                          style={{ width: '100%', height: '100%' }}
-                        />
-                      </Paper>
-                    </Grid>
-                  )}
-
-                  {ec2Instance === 'TSAS-StreamlitHost' && ec2Models.includes('ARIMA') && (
-                    <Grid item xs={6}>
-                      <Typography variant="subtitle1">QuickSight ARIMA Forecasting - Dec-01 - Dec-07 - Actual vs Predicted</Typography>
-                      <Paper elevation={2} sx={{ p: 1, bgcolor: '#ffffff' }}>
-                        <Plot
-                          data={[
-                            {
-                              x: quicksightValidationData.map(d => d.timestamp),
-                              y: quicksightValidationData.map(d => d.actual),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'Actual CPU Utilization',
-                              line: { color: '#C6C5D8' }
-                            },
-                            {
-                              x: quicksightValidationData.map(d => d.timestamp),
-                              y: quicksightValidationData.map(d => d.forecast),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'Predicted CPU Utilization',
-                              line: { color: '#D16BA2' }
-                            }
-                          ]}
-                          layout={{
-                            autosize: true,
-                            height: 400,
-                            margin: { l: 50, r: 50, t: 30, b: 30 },
-                            xaxis: {
-                              title: 'Time',
-                              showgrid: true,
-                              gridcolor: '#e1e1e1'
-                            },
-                            yaxis: {
-                              title: 'CPU Utilization',
-                              showgrid: true,
-                              gridcolor: '#e1e1e1',
-                              range: [0, Math.max(
-                                ...quicksightValidationData.map(d => d.actual),
-                                ...quicksightValidationData.map(d => d.forecast)
-                              ) * 1.1]
-                            },
-                            paper_bgcolor: 'white',
-                            plot_bgcolor: 'white',
-                            showlegend: true,
-                            legend: {
-                              x: 0.5,
-                              y: 1.2,
-                              orientation: 'h',
-                              xanchor: 'center'
-                            }
-                          }}
-                          config={{
-                            responsive: true,
-                            displayModeBar: false
-                          }}
-                          style={{ width: '100%' }}
-                        />
-                      </Paper>
-                    </Grid>
-                  )}
-
-                  {ec2Instance === 'kidonteam5ec2' && (
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle1">T5 Forecasting - Dec-06 - Dec-18</Typography>
-                      <Paper elevation={2} sx={{ p: 1, bgcolor: '#ffffff' }}>
-                        <Plot
-                          data={[
-                            {
-                              x: t5Data.map(d => d.Timestamp),
-                              y: t5Data.map(d => d.CPUUtilization_actual),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'CPU Utilization',
-                              line: { color: '#8884d8' }
-                            },
-                            {
-                              x: t5Data.map(d => d.Timestamp),
-                              y: t5Data.map(d => d.CPUUtilization_pred),
-                              type: 'scatter',
-                              mode: 'lines',
-                              name: 'Predicted CPU Utilization',
-                              line: { color: '#82ca9d' }
-                            }
-                          ]}
-                          layout={{
-                            autosize: true,
-                            height: 400,
-                            margin: { l: 50, r: 30, t: 20, b: 50 },
-                            showlegend: true,
-                            xaxis: {
-                              title: 'Time',
-                              tickangle: -45,
-                              tickformat: '%Y-%m-%d %H:%M',
-                              type: 'date'
-                            },
-                            yaxis: {
-                              title: 'CPU Utilization (%)',
-                              titlefont: { color: '#1a1a1a' },
-                              tickfont: { color: '#1a1a1a' },
-                              range: [0, Math.max(
-                                ...t5Data.map(d => d.CPUUtilization_actual),
-                                ...t5Data.map(d => d.CPUUtilization_pred)
-                              ) * 1.1]
-                            },
-                            legend: {
-                              x: 0.5,
-                              y: 1.2,
-                              orientation: 'h',
-                              xanchor: 'center'
-                            }
-                          }}
-                          config={{
-                            responsive: true,
-                            displayModeBar: false
-                          }}
-                          style={{ width: '100%', height: '100%' }}
-                        />
-                      </Paper>
-                    </Grid>
-                  )}
-
+                {ec2Instance === 'TSAS-StreamlitHost' && ec2Models.includes('LSTM') && (
                   <Grid item xs={12}>
-                    <Typography variant="h6" sx={{ mb: 1 }}>EC2 Insights</Typography>
-                    {ec2Insights ? (
-                      ec2Insights.trim() ? (
-                        <Typography variant="body1" sx={{ whiteSpace: 'pre-line', p: 1, bgcolor: 'white', borderRadius: '4px' }}>
-                          {ec2Insights}
-                        </Typography>
-                      ) : (
-                        <Typography variant="body1" sx={{ mt: 1 }}>
-                          No insights available.
-                        </Typography>
-                      )
+                    <Typography variant="subtitle1">LSTM Forecasting - Nov-21 - Dec-07 </Typography>
+
+                    <Paper elevation={2} sx={{ p: 1, bgcolor: '#ffffff' }}>
+                      <Plot
+                        data={[
+                          {
+                            x: data.map(d => d.timestamp),
+                            y: data.map(d => d.cpu),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'CPU Utilization',
+                            line: { color: '#8884d8' }
+                          },
+                          {
+                            x: data.map(d => d.timestamp),
+                            y: data.map(d => d.predicted),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Predicted CPU Utilization',
+                            line: { color: '#82ca9d' }
+                          }
+                        ]}
+                        layout={{
+                          autosize: true,
+                          height: 400,
+                          margin: { l: 50, r: 30, t: 20, b: 50 },
+                          showlegend: true,
+                          xaxis: {
+                            title: 'Time',
+                            tickangle: -45
+                          },
+                          yaxis: {
+                            title: 'CPU Utilization (%)',
+                            titlefont: { color: '#1a1a1a' },
+                            tickfont: { color: '#1a1a1a' },
+                            range: [0, Math.max(
+                              ...data.map(d => d.cpu),
+                              ...data.map(d => d.predicted)
+                            ) * 1.1]
+                          },
+                          legend: {
+                            x: 0.5,
+                            y: 1.2,
+                            orientation: 'h',
+                            xanchor: 'center'
+                          }
+                        }}
+                        config={{
+                          responsive: true,
+                          displayModeBar: false
+                        }}
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                    </Paper>
+                  </Grid>
+                )}
+
+                {ec2Instance === 'TSAS-StreamlitHost' && ec2Models.includes('LSTM') && (
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1">LSTM Forecasting - Nov-21 - Dec-07 - Actual vs Predicted</Typography>
+                    <Paper elevation={2} sx={{ p: 1, bgcolor: '#ffffff' }}>
+                      <Plot
+                        data={[
+                          {
+                            x: lstmValidationData.map(d => d.timestamp),
+                            y: lstmValidationData.map(d => d.cpu),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'CPU Utilization',
+                            line: { color: '#C6C5D8' }
+                          },
+                          {
+                            x: lstmValidationData.map(d => d.timestamp),
+                            y: lstmValidationData.map(d => d.predicted),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Predicted CPU Utilization',
+                            line: { color: '#D16BA2' }
+                          }
+                        ]}
+                        layout={{
+                          autosize: true,
+                          height: 400,
+                          margin: { l: 50, r: 50, t: 30, b: 30 },
+                          xaxis: {
+                            title: 'Time',
+                            showgrid: true,
+                            gridcolor: '#e1e1e1'
+                          },
+                          yaxis: {
+                            title: 'CPU Utilization',
+                            showgrid: true,
+                            gridcolor: '#e1e1e1'
+                          },
+                          paper_bgcolor: 'white',
+                          plot_bgcolor: 'white',
+                          showlegend: true,
+                          legend: {
+                            x: 0,
+                            y: 1
+                          }
+                        }}
+                        config={{
+                          responsive: true,
+                          displayModeBar: false
+                        }}
+                        style={{ width: '100%' }}
+                      />
+                    </Paper>
+                  </Grid>
+                )}
+
+                {ec2Instance === 'TSAS-StreamlitHost' && ec2Models.includes('ARIMA') && (
+                  <Grid item xs={6}>
+                    <Typography variant="subtitle1">QuickSight ARIMA Forecasting - Dec-01 - Dec-07</Typography>
+                    <Paper elevation={2} sx={{ p: 1, bgcolor: '#ffffff' }}>
+                      <Plot
+                        data={[
+                          {
+                            x: historicalData.map(d => d.timestamp),
+                            y: historicalData.map(d => d.historical),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Historical Forecast',
+                            line: { color: '#8884d8' }
+                          },
+                          {
+                            x: futureData.map(d => d.timestamp),
+                            y: futureData.map(d => d.forecast),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Future Forecast',
+                            line: { color: '#ff7f0e' }
+                          },
+                          {
+                            x: futureData.map(d => d.timestamp),
+                            y: futureData.map(d => d.upperBound),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Confidence Interval',
+                            line: { width: 0 },
+                            showlegend: false
+                          },
+                          {
+                            x: futureData.map(d => d.timestamp),
+                            y: futureData.map(d => d.lowerBound),
+                            type: 'scatter',
+                            mode: 'lines',
+                            fill: 'tonexty',
+                            fillcolor: 'rgba(255, 127, 14, 0.2)',
+                            line: { width: 0 },
+                            showlegend: false
+                          }
+                        ]}
+                        layout={{
+                          autosize: true,
+                          height: 400,
+                          margin: { l: 50, r: 30, t: 20, b: 50 },
+                          showlegend: true,
+                          xaxis: {
+                            title: 'Time',
+                            tickangle: -45,
+                            range: [
+                              new Date('2024-10-14'),
+                              new Date('2024-12-07')
+                            ]
+                          },
+                          yaxis: {
+                            title: 'CPU Utilization (%)',
+                            titlefont: { color: '#1a1a1a' },
+                            tickfont: { color: '#1a1a1a' }
+                          },
+                          legend: {
+                            x: 0.5,
+                            y: 1.2,
+                            orientation: 'h',
+                            xanchor: 'center'
+                          }
+                        }}
+                        config={{
+                          responsive: true,
+                          displayModeBar: false
+                        }}
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                    </Paper>
+                  </Grid>
+                )}
+
+                {ec2Instance === 'TSAS-StreamlitHost' && ec2Models.includes('ARIMA') && (
+                  <Grid item xs={6}>
+                    <Typography variant="subtitle1">QuickSight ARIMA Forecasting - Dec-01 - Dec-07 - Actual vs Predicted</Typography>
+                    <Paper elevation={2} sx={{ p: 1, bgcolor: '#ffffff' }}>
+                      <Plot
+                        data={[
+                          {
+                            x: quicksightValidationData.map(d => d.timestamp),
+                            y: quicksightValidationData.map(d => d.actual),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Actual CPU Utilization',
+                            line: { color: '#C6C5D8' }
+                          },
+                          {
+                            x: quicksightValidationData.map(d => d.timestamp),
+                            y: quicksightValidationData.map(d => d.forecast),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Predicted CPU Utilization',
+                            line: { color: '#D16BA2' }
+                          }
+                        ]}
+                        layout={{
+                          autosize: true,
+                          height: 400,
+                          margin: { l: 50, r: 50, t: 30, b: 30 },
+                          xaxis: {
+                            title: 'Time',
+                            showgrid: true,
+                            gridcolor: '#e1e1e1'
+                          },
+                          yaxis: {
+                            title: 'CPU Utilization',
+                            showgrid: true,
+                            gridcolor: '#e1e1e1',
+                            range: [0, Math.max(
+                              ...quicksightValidationData.map(d => d.actual),
+                              ...quicksightValidationData.map(d => d.forecast)
+                            ) * 1.1]
+                          },
+                          paper_bgcolor: 'white',
+                          plot_bgcolor: 'white',
+                          showlegend: true,
+                          legend: {
+                            x: 0.5,
+                            y: 1.2,
+                            orientation: 'h',
+                            xanchor: 'center'
+                          }
+                        }}
+                        config={{
+                          responsive: true,
+                          displayModeBar: false
+                        }}
+                        style={{ width: '100%' }}
+                      />
+                    </Paper>
+                  </Grid>
+                )}
+
+                {ec2Instance === 'kidonteam5ec2' && (
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1">T5 Forecasting - Dec-06 - Dec-18</Typography>
+                    <Paper elevation={2} sx={{ p: 1, bgcolor: '#ffffff' }}>
+                      <Plot
+                        data={[
+                          {
+                            x: t5Data.map(d => d.Timestamp),
+                            y: t5Data.map(d => d.CPUUtilization_actual),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'CPU Utilization',
+                            line: { color: '#8884d8' }
+                          },
+                          {
+                            x: t5Data.map(d => d.Timestamp),
+                            y: t5Data.map(d => d.CPUUtilization_pred),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: 'Predicted CPU Utilization',
+                            line: { color: '#82ca9d' }
+                          }
+                        ]}
+                        layout={{
+                          autosize: true,
+                          height: 400,
+                          margin: { l: 50, r: 30, t: 20, b: 50 },
+                          showlegend: true,
+                          xaxis: {
+                            title: 'Time',
+                            tickangle: -45,
+                            tickformat: '%Y-%m-%d %H:%M',
+                            type: 'date'
+                          },
+                          yaxis: {
+                            title: 'CPU Utilization (%)',
+                            titlefont: { color: '#1a1a1a' },
+                            tickfont: { color: '#1a1a1a' },
+                            range: [0, Math.max(
+                              ...t5Data.map(d => d.CPUUtilization_actual),
+                              ...t5Data.map(d => d.CPUUtilization_pred)
+                            ) * 1.1]
+                          },
+                          legend: {
+                            x: 0.5,
+                            y: 1.2,
+                            orientation: 'h',
+                            xanchor: 'center'
+                          }
+                        }}
+                        config={{
+                          responsive: true,
+                          displayModeBar: false
+                        }}
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                    </Paper>
+                  </Grid>
+                )}
+
+                <Grid item xs={12}>
+                  <Typography variant="h6" sx={{ mb: 1 }}>EC2 Insights</Typography>
+                  {ec2Insights ? (
+                    ec2Insights.trim() ? (
+                      <Typography variant="body1" sx={{ whiteSpace: 'pre-line', p: 1, bgcolor: 'white', borderRadius: '4px' }}>
+                        {ec2Insights}
+                      </Typography>
                     ) : (
                       <Typography variant="body1" sx={{ mt: 1 }}>
-                        Loading EC2 insights...
+                        No insights available.
                       </Typography>
-                    )}
-                  </Grid>
+                    )
+                  ) : (
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                      Loading EC2 insights...
+                    </Typography>
+                  )}
                 </Grid>
               </Grid>
             </Grid>
-          </Paper>
+          </Grid>
+        </Paper>
       </Box>
     </Box>
-      
+
   )
 }
 

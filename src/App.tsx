@@ -26,7 +26,7 @@ const NAVIGATION: Navigation = [
 ];
 
 const BRANDING = {
-  title: 'ABC Bank',
+  title: 'InsightGuard',
 };
 
 export default function App() {
