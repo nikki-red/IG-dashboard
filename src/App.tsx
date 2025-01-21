@@ -3,7 +3,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Outlet } from 'react-router-dom';
 import { AppProvider, type Navigation } from '@toolpad/core/react-router-dom';
-
+ 
 const NAVIGATION: Navigation = [
   {
     kind: 'header',
@@ -14,25 +14,35 @@ const NAVIGATION: Navigation = [
     icon: <DashboardIcon />,
   },
   {
+    segment: 'apiGateway',
+    title: 'API Gateway',
+    icon: <ShoppingCartIcon />,
+  },
+  {
+    segment: 'lambda',
+    title: 'Lambda',
+    icon: <ShoppingCartIcon />,
+  },
+  {
     segment: 'orders',
     title: 'Customer List',
     icon: <ShoppingCartIcon />,
   },
-  { 
+  {
     segment: 'infrastructureMetrics',
     title: 'Infrastructure Metrics',
     icon: <DashboardIcon/>
   }
 ];
-
+ 
 const BRANDING = {
   title: 'InsightGuard',
 };
-
+ 
 export default function App() {
   return (
     <AppProvider navigation={NAVIGATION} branding={BRANDING}>
-      <Outlet />
+      <Outlet /> 
     </AppProvider>
   );
 }

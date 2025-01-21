@@ -5,7 +5,9 @@ import App from './App';
 import Layout from './layouts/dashboard';
 import DashboardPage from './pages';
 import CustomerListPage from './pages/customer_list';
-import InfrastructureMetrics from './pages/infrastructure_metrics';
+import InfrastructureMetrics from './pages/infrastructure_metrics_old';
+import API_Gateway_Page from './pages/Network Metrics/API Gateway/api_gateway_page';
+import Lambda_Page from './pages/Network Metrics/Lambda/lambda_page';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +20,12 @@ const router = createBrowserRouter([
           {
             path: '',
             Component: DashboardPage,
+          },{
+            path: 'apiGateway',
+            Component: API_Gateway_Page,
+          },{
+            path: 'lambda', 
+            Component: Lambda_Page,
           },
           {
             path: 'orders',
@@ -32,7 +40,7 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-
+ 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <RouterProvider router={router} />

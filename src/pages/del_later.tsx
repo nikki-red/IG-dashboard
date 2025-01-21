@@ -1,3 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CloudWatch Metrics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div style="width: 800px; margin: 0 auto;">
+        <canvas id="metricsChart"></canvas>
+    </div>
+
+    <script>
+        const API_ENDPOINT = 'YOUR_API_GATEWAY_URL';
+        let chart;
+
+        async function fetchMetrics() {
+            try {
+                const response = await fetch(`${API_ENDPOINT}?metricName=CPUUtilization&namespace=AWS/EC2&dimensionName=InstanceId&dimensionValue=YOUR_INSTANCE_ID`);
+                const data = await response.json();
+                
+                updateChart(data);
+            } catch (error) {
+                console.error('Error fetching metrics:', error);
+            }
+        }
+
+        function updateChart(data) {
+            const ctx = document.getElementById('metricsChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.timestamps.map(ts => new Date(ts).toLocaleTimeString()),
+                    datasets: [{
+                        label: data.metric,
+                        data: data.values,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fetch metrics every 60 seconds
+        fetchMetrics();
+        setInterval(fetchMetrics, 60000);
+    </script>
+</body>
+</html>
 
 return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -1553,3 +1614,124 @@ return (
         </Box>
     </Box>
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Add these interfaces at the top of your file
+interface RealTimeMetrics {
+  instance: string;
+  instanceId: string;
+  currentValue: number;
+  timestamp: string;
+  lastUpdated: string;
+}
+
+// Add these states to your component
+const [currentMetrics, setCurrentMetrics] = useState<RealTimeMetrics | null>(null);
+const [metricsHistory, setMetricsHistory] = useState<{ time: Date; value: number }[]>([]);
+const [metricsError, setMetricsError] = useState<string | null>(null);
+//const plotRef = useRef<any>(null);
+
+// Add this function to your component
+const fetchRealTimeMetrics = async (instance: string) => {
+  try {
+    const response = await fetch(
+      `https://u7i3wume3h.execute-api.us-east-1.amazonaws.com/default/InsightGuard-CloudWatch-RealTime?instance=${instance}`,
+      {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch metrics');
+    }
+
+    const data: RealTimeMetrics = await response.json();
+    setCurrentMetrics(data);
+
+    // Update history with new data point
+    setMetricsHistory(prev => {
+      const now = new Date();
+      const newHistory = [...prev, { time: now, value: data.currentValue }];
+      // Keep only last 2 minutes of data
+      return newHistory.filter(point =>
+        now.getTime() - point.time.getTime() <= 120000
+      );
+    });
+
+    setMetricsError(null);
+  } catch (err) {
+    setMetricsError(err instanceof Error ? err.message : 'An error occurred');
+  }
+};
+
+// Add this useEffect after your existing Select component
+useEffect(() => {
+  if (ec2Instance) {
+    // Initial fetch
+    fetchRealTimeMetrics(ec2Instance);
+
+    // Set up 1-second interval
+    const interval = setInterval(() => {
+      fetchRealTimeMetrics(ec2Instance);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }
+}, [ec2Instance]);
+
+
+
+{/* Real-time CPU Gauge */}
+<Grid item xs={12} md={6}>
+<Paper elevation={2} sx={{ p: 2, bgcolor: '#ffffff' }}>
+  <Typography variant="h6" gutterBottom>
+    Real-time CPU Utilization
+  </Typography>
+  {metricsError && (
+    <Typography color="error">
+      Error loading metrics: {metricsError}
+    </Typography>
+  )}
+  {currentMetrics && (
+    <>
+      <GaugeChart
+        id="cpu-gauge"
+        nrOfLevels={3}
+        colors={['#5BE12C', '#F5CD19', '#EA4228']}
+        percent={currentMetrics.currentValue / 100}
+        textColor="#000000"
+        formatTextValue={(value) => `${(value)}`}
+        animate={false}
+      />
+      <Typography variant="caption" sx={{ display: 'block', textAlign: 'center' }}>
+        Last updated: {new Date(currentMetrics.lastUpdated).toLocaleTimeString()}
+      </Typography>
+    </>
+  )}
+</Paper>
+</Grid>
