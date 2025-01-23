@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { Typography } from '@mui/material';
 import { Fade, Grow } from '@mui/material';
-import MetricsSource from '../Lambda/metrics_source'
+import MetricsSource from './metrics_source';
 import React, { useState } from 'react';
 import ModelButtonLambda from '../model_button_lambda';
 //import LatencyArima from '../API Gateway/Graphs_Component/latency_arima';
@@ -9,7 +9,7 @@ import ModelButtonLambda from '../model_button_lambda';
 import AnomalyDetectionIsolationForest from './Graphs_Component/lambda_anomaly_detection_isolation_forest';
 import LambdaInsights from './Insights_Component/lambda_insights';
 
-export default function Lambda_Page() {
+export default function Traffic_Lambda_Page() {
   const [lambdaFunction, setLambdaFunction] = useState('');
   const [lambdaModels, setLambdaModels] = useState('Isolation Forest');
   const renderGraphs = () => {

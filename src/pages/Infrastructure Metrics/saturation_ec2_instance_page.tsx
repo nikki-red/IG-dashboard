@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { Box, Divider, Fade, Grow } from '@mui/material';
-import MetricsSource from './Infrastructure Metrics/metrics_source';
-import SourceDetails from './Infrastructure Metrics/source_details';
-import ModelButton from './Infrastructure Metrics/model_button.tsx';
-import TSAS_LSTMForecast from './Infrastructure Metrics/Graphs_Components/TSAS/TSAS_lstm_forecast.tsx';
-import TSAS_EC2InsightsComponent from './Infrastructure Metrics/Insights_Components/TSAS_ec2_insights.tsx';
-import Team5_EC2InsightsComponent from './Infrastructure Metrics/Insights_Components/team5_ec2_insights.tsx';
-import EC2InsightsComponent from './Infrastructure Metrics/Insights_Components/ec2_insights.tsx';
-import TSAS_ARIMAForecast from './Infrastructure Metrics/Graphs_Components/TSAS/TSAS_arima_forecast.tsx';
-import Team5_LSTMForecast from './Infrastructure Metrics/Graphs_Components/team5/team5_lstm_forecast.tsx';
+import MetricsSource from './metrics_source.tsx'; //'./Infrastructure Metrics/metrics_source.tsx';
+import SourceDetails from './source_details.tsx'; //'./Infrastructure Metrics/source_details.tsx';
+import ModelButton from './model_button.tsx'; //'./Infrastructure Metrics/model_button.tsx';
+import TSAS_LSTMForecast from './Graphs_Components/TSAS/TSAS_lstm_forecast.tsx'; //'./Infrastructure Metrics/Graphs_Components/TSAS/TSAS_lstm_forecast.tsx';
+//import TSAS_EC2InsightsComponent from './Infrastructure Metrics/Insights_Components/TSAS_ec2_insights.tsx';
+//import Team5_EC2InsightsComponent from './Infrastructure Metrics/Insights_Components/team5_ec2_insights.tsx';
+import EC2InsightsComponent from './Insights_Components/ec2_insights.tsx'; //'./Infrastructure Metrics/Insights_Components/ec2_insights.tsx';
+import TSAS_ARIMAForecast from './Graphs_Components/TSAS/TSAS_arima_forecast.tsx'; //'./Infrastructure Metrics/Graphs_Components/TSAS/TSAS_arima_forecast.tsx';
+import Team5_LSTMForecast from './Graphs_Components/team5/team5_lstm_forecast.tsx'; //'./Infrastructure Metrics/Graphs_Components/team5/team5_lstm_forecast.tsx';
 
-export default function Index() {
+export default function Saturation_EC2_Page() {
   const [ec2Instance, setEc2Instance] = useState('');
   const [ec2Models, setEc2Models] = useState('LSTM');
   const renderGraphs = () => {
@@ -35,14 +35,15 @@ export default function Index() {
       );
     }
   };
-  const renderEC2Insights = () => {
-    if (ec2Instance === 'TSAS-StreamlitHost') {
-      return <TSAS_EC2InsightsComponent />;
-    }
-    if (ec2Instance === 'kidonteam5ec2') {
-      return <Team5_EC2InsightsComponent />;
-    }
-  };
+  // const renderEC2Insights = () => {
+  //   if (ec2Instance === 'TSAS-StreamlitHost') {
+  //     return <TSAS_EC2InsightsComponent />;
+  //   }
+  //   if (ec2Instance === 'kidonteam5ec2') {
+  //     return <Team5_EC2InsightsComponent />;
+  //   }
+  // };
+ 
   return (
     <Box>
       {/* Metric Source */}

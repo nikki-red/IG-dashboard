@@ -82,7 +82,7 @@ const EC2InsightsComponent = ({ ec2Instance }) => {
             //setEc2Insights('Here are the key insights from the CPU utilization data: 1. Peak hour range: The peaks in CPU utilization occur mostly between 10am - 2pm and 3pm - 7pm. 2. Most frequent peak hours and counts: - 3pm - 4pm: 18 peaks - 11am - 12pm: 16 peaks - 10am - 11am: 13 peaks 3. Hourly trends: - The highest average CPU utilization is at 3pm (average 15.2%). - Other hours with high average utilization are 11am (14.1%), 4pm (13.9%), and 10am (12.8%). 4. Weekly trends: - Wednesday has the most peaks with 25 peaks. - Monday has the second most with 23 peaks. - Tuesday and Thursday both have 21 peaks each. 5. Patterns and recommendations: - There is a clear two peak period during mid-day and late afternoon. - CPU utilization peaks most frequently mid-week. - To handle peak utilization periods, recommend scaling up capacity by ~15% from 10am - 7pm, with the highest increases from 2pm - 5pm. - Increase capacity by ~10% on Mondays and Wednesdays in particular. - Target base capacity to handle average utilization of 10-11% during non-peak periods. In summary, the data shows dual daily peak periods and mid-week peaks in utilization. Scaling up capacity during high utilization hours and on peak days can help improve performance during demand spikes.');
         }
         console.log('ec2Insights:', ec2Insights);
-        const maxLength = 400;
+        const maxLength = 300;
         const isLongText = ec2Insights.length > maxLength;
         const displayedText = showFullText || !isLongText ? ec2Insights : ec2Insights.substring(0, maxLength) + '...';
 

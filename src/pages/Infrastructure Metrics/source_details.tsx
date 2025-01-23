@@ -3,18 +3,18 @@ import { List, ListItemText, ListItem, Paper } from '@mui/material';
 import { Grid } from '@mui/material';
 import React from 'react';
 
-export default function SourceDetails({ec2Instance}) {
+export default function SourceDetails({ ec2Instance }) {
   return (
     <>
       {/* <Typography variant="h6" gutterBottom>Source Details:</Typography> */}
-      <Grid container spacing={3} sx={{ 
+      <Grid container spacing={3} sx={{
         mb: 2,
         width: 'calc(100% + 24px)', // Compensate for the negative margin
         ml: '-24px',  // Negative margin to offset parent padding
         mr: '-24px',  // Remove right margin
         '& .MuiGrid-item': {
           pl: '24px'  // Restore left padding for grid items
-        } 
+        }
       }}>
         {/* Instance Details Column */}
         <Grid item xs={12} md={4}>
@@ -156,7 +156,7 @@ export default function SourceDetails({ec2Instance}) {
             </List>
           </Paper>
         </Grid>
-      </Grid>     
+      </Grid>
     </>
   );
 }

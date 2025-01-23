@@ -1,7 +1,7 @@
 import { Box, IconButton, Tooltip } from '@mui/material';
 import { Typography } from '@mui/material';
 import { Fade, Grow } from '@mui/material';
-import MetricsSource from '../API Gateway/metrics_source'
+import MetricsSource from './metrics_source'
 import React, { useState } from 'react';
 import ModelButtonForecast from '../model_button_forecast';
 import ModelButtonAnomalyDetection from '../model_button_anomaly_detection';
@@ -13,7 +13,7 @@ import LatencyInsightsComponent from './Insights_Component/latency_insights';
 import InfoIcon from '@mui/icons-material/Info';
 import LatencyTitle from './latency_title';
 
-export default function API_Gateway_Page() {
+export default function Latency_API_Gateway_Page() {
     const [apiType, setApiType] = useState('');
     const [apiModels, setApiModels] = useState('Prophet');
     const [apiModelsAnomaly, setApiModelsAnomaly] = useState('Isolation Forest');
